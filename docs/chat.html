@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Chat Simulator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #efeae2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+
+        .phone-container {
+            width: 100%;
+            height: 100%;
+            background: white;
+            border-radius: 0;
+            box-shadow: none;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: #f4f4f4;
+            color: white;
+            padding: 20px 25px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .header-avatar {
+            width: 56px;
+            height: 56px;
+            background-size: cover;
+            background-position: center;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 24px;
+            overflow: hidden;
+            flex-shrink: 0;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .header-avatar:active {
+            opacity: 0.8;
+        }
+
+        .header-info h3 {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 29px;
+            font-weight: 400;
+            color: #242323;
+            margin: 0;
+        }
+
+        .chat-background {
+            background-image: url('/vintage-photobooth/chat-bg.png');
+            background-color: #e5ddd5;
+            background-repeat: repeat;
+            padding: 20px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .message {
+            margin-bottom: 12px;
+            display: flex;
+            opacity: 0;
+            transform: scale(0.8);
+            animation: messageAppear 0.3s ease forwards;
+        }
+
+        @keyframes messageAppear {
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .message.right {
+            justify-content: flex-end;
+        }
+
+        .message.left {
+            justify-content: flex-start;
+        }
+
+        .message-content {
+            max-width: 85%;
+            padding: 14px 20px;
+            border-radius: 14px;
+            position: relative;
+            word-wrap: break-word;
+            font-size: 18px;
+        }
+
+        .message.right .message-content {
+            background-color: #dcf8c6;
+            border-top-right-radius: 0;
+        }
+
+        .message.left .message-content {
+            background-color: white;
+            border-top-left-radius: 0;
+        }
+
+        .message-text {
+            font-size: 22px;
+            line-height: 1.7;
+            color: #0f1720;
+            margin-bottom: 8px;
+        }
+
+        .message-text .highlight {
+            background-color: #fff3cd;
+            padding: 0 2px;
+        }
+
+        .message-time {
+            font-size: 15px;
+            color: #667781;
+            text-align: right;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 3px;
+        }
+
+        .checkmark {
+            color: #53bdeb;
+            font-size: 16px;
+        }
+
+        .sender-name {
+            font-size: 20px;
+            color: #075e54;
+            font-weight: 700;
+            margin-bottom: 6px;
+            line-height: 1.2;
+        }
+
+        .typing-indicator {
+            background-color: white;
+            border-radius: 14px;
+            border-top-left-radius: 0;
+            padding: 16px 20px;
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .typing-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #90949c;
+            animation: typingAnimation 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typingAnimation {
+            0%, 60%, 100% {
+                transform: translateY(0);
+                opacity: 0.7;
+            }
+            30% {
+                transform: translateY(-10px);
+                opacity: 1;
+            }
+        }
+
+        .controls {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+            display: none;
+            gap: 10px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.4s ease;
+        }
+
+        .controls.show {
+            display: flex;
+            animation: slideUp 0.5s ease forwards;
+        }
+
+        @keyframes slideUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        button {
+            flex: 1;
+            padding: 16px 24px;
+            background: #7e5a3a;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(126, 90, 58, 0.3);
+        }
+
+        button:hover {
+            background: #6b4a30;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(126, 90, 58, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        /* DP Viewer Overlay */
+        .dp-viewer-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            z-index: 9999;
+            display: none;
+            flex-direction: column;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .dp-viewer-overlay.show {
+            display: flex;
+            opacity: 1;
+        }
+
+        .dp-viewer-header {
+            padding: 20px 25px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        .dp-viewer-close {
+            color: white;
+            font-size: 28px;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.2s;
+        }
+
+        .dp-viewer-close:active {
+            opacity: 0.6;
+        }
+
+        .dp-viewer-info {
+            color: white;
+        }
+
+        .dp-viewer-info h3 {
+            font-size: 20px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .dp-viewer-info p {
+            font-size: 14px;
+            color: #aaa;
+        }
+
+        .dp-viewer-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .dp-viewer-image {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 0;
+        }
+
+        @keyframes dpZoomIn {
+            from {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .dp-viewer-overlay.show .dp-viewer-image {
+            animation: dpZoomIn 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-container">
+        <div class="header">
+            <div class="header-avatar" style="background-image: url('/vintage-photobooth/whatsapp-dp.jpg')" onclick="openDPViewer()"></div>
+            <div class="header-info">
+                <h3>Parth from Mumbai</h3>
+            </div>
+        </div>
+        
+        <div class="chat-background" id="chatContainer">
+            <!-- Messages will be added here -->
+        </div>
+
+        <div class="controls" id="controls">
+            <button id="photoboothBtn" onclick="goToPhotobooth()">Let's Change That</button>
+        </div>
+    </div>
+
+    <!-- DP Viewer Overlay -->
+    <div class="dp-viewer-overlay" id="dpViewer">
+        <div class="dp-viewer-header">
+            <div class="dp-viewer-close" onclick="closeDPViewer()">×</div>
+            <div class="dp-viewer-info">
+                <h3>Parth from Mumbai</h3>
+                <p>Tap to view</p>
+            </div>
+        </div>
+        <div class="dp-viewer-content">
+            <img src="/vintage-photobooth/whatsapp-dp.jpg" alt="Profile Picture" class="dp-viewer-image">
+        </div>
+    </div>
+
+    <script>
+        const messages = [
+            {
+                type: 'right',
+                text: 'I saw a dream',
+                time: '8:26 AM',
+            },
+            {
+                type: 'right',
+                text: 'Jisme we were trying the photo booth',
+                time: '8:26 AM',
+            },
+            {
+                type: 'left',
+                sender: 'Parth from Mumbai',
+                text: 'You knoww',
+                time: '8:27 AM',
+                showTyping: true
+            },
+            {
+                type: 'left',
+                sender: 'Parth from Mumbai',
+                text: 'I\'ve never',
+                time: '8:27 AM',
+                showTyping: true
+            },
+            {
+                type: 'left',
+                sender: 'Parth from Mumbai',
+                text: 'Been in a photobooth',
+                time: '8:27 AM',
+                showTyping: true
+            }
+        ];
+
+        let currentIndex = 0;
+        let isSimulating = false;
+
+        function createMessage(msg) {
+            const checkmark = msg.checkmarks ? '<span class="checkmark">✓✓</span>' : '';
+            const sender = msg.sender ? `<div class="sender-name">${msg.sender}</div>` : '';
+            
+            return `
+                <div class="message ${msg.type}">
+                    <div class="message-content">
+                        ${sender}
+                        <div class="message-text">${msg.text}</div>
+                        <div class="message-time">
+                            ${msg.time}
+                            ${checkmark}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function showTypingIndicator() {
+            const chatContainer = document.getElementById('chatContainer');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message left';
+            typingDiv.id = 'typing-indicator';
+            typingDiv.innerHTML = `
+                <div class="typing-indicator">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            `;
+            chatContainer.appendChild(typingDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function removeTypingIndicator() {
+            const typing = document.getElementById('typing-indicator');
+            if (typing) typing.remove();
+        }
+
+        function addMessage(index) {
+            const chatContainer = document.getElementById('chatContainer');
+            const messageElement = document.createElement('div');
+            messageElement.innerHTML = createMessage(messages[index]);
+            chatContainer.appendChild(messageElement.firstElementChild);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        async function startSimulation() {
+            if (isSimulating) return;
+            
+            isSimulating = true;
+
+            while (currentIndex < messages.length) {
+                const msg = messages[currentIndex];
+                
+                // Show typing indicator for left messages
+                if (msg.type === 'left' && msg.showTyping) {
+                    showTypingIndicator();
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+                    removeTypingIndicator();
+                }
+
+                addMessage(currentIndex);
+                currentIndex++;
+                
+                // Wait between messages
+                let delay;
+                if (currentIndex === 1) {
+                    delay = 1200;
+                } else if (currentIndex === 2) {
+                    delay = 1800;
+                } else {
+                    delay = Math.random() * 800 + 600;
+                }
+                
+                await new Promise(resolve => setTimeout(resolve, delay));
+            }
+
+            isSimulating = false;
+            
+            // Show the "Let's Change That" button after all messages
+            setTimeout(() => {
+                document.getElementById('controls').classList.add('show');
+            }, 500);
+        }
+
+        function goToPhotobooth() {
+            window.location.href = '/';
+        }
+
+        function openDPViewer() {
+            const dpViewer = document.getElementById('dpViewer');
+            dpViewer.classList.add('show');
+        }
+
+        function closeDPViewer() {
+            const dpViewer = document.getElementById('dpViewer');
+            dpViewer.classList.remove('show');
+        }
+
+        // Auto-start simulation when page loads
+        window.addEventListener('DOMContentLoaded', () => {
+            // Small delay before starting to feel more natural
+            setTimeout(() => {
+                startSimulation();
+            }, 500);
+        });
+    </script>
+</body>
+</html>
