@@ -58,8 +58,11 @@
         }
 
         .header-info h3 {
-            font-size: 18px;
-            font-weight: 500;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 29px;
+            font-weight: 400;
+            color: #242323;
+            margin: 0;
         }
 
         .chat-background {
@@ -135,12 +138,6 @@
             gap: 3px;
         }
 
-        /* slightly larger checkmark and tighter metadata spacing */
-        .checkmark {
-            color: #53bdeb;
-            font-size: 18px;
-        }
-
         .checkmark {
             color: #53bdeb;
             font-size: 16px;
@@ -158,38 +155,47 @@
             padding: 20px;
             background: white;
             border-top: 1px solid #e0e0e0;
-            display: flex;
+            display: none;
             gap: 10px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.4s ease;
+        }
+
+        .controls.show {
+            display: flex;
+            animation: slideUp 0.5s ease forwards;
+        }
+
+        @keyframes slideUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         button {
             flex: 1;
-            padding: 12px 20px;
-            background: #25d366;
+            padding: 16px 24px;
+            background: #7e5a3a;
             color: white;
             border: none;
             border-radius: 8px;
-            font-size: 14px;
+            font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(126, 90, 58, 0.3);
         }
 
         button:hover {
-            background: #20ba5a;
+            background: #6b4a30;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(126, 90, 58, 0.4);
         }
 
-        button:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-        }
-
-        button.secondary {
-            background: #075e54;
-        }
-
-        button.secondary:hover {
-            background: #064d45;
+        button:active {
+            transform: translateY(0);
         }
     </style>
 </head>
@@ -198,16 +204,7 @@
         <div class="header">
             <div class="header-avatar" style="background-image: url('/whatsapp-dp.jpg')"></div>
             <div class="header-info">
-                <h3 style="
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    font-size: 29px;      /* typical WhatsApp message size */
-    font-weight: 400;     /* normal weight */
-    color: #242323;       /* WhatsApp dark green for sender bubble text */
-    margin: 0;
-">
-    Parth from Mumbai
-</h3>
-
+                <h3>Parth from Mumbai</h3>
             </div>
         </div>
         
@@ -215,10 +212,8 @@
             <!-- Messages will be added here -->
         </div>
 
-        <div class="controls">
-            <button id="startBtn" onclick="startSimulation()">Start Simulation</button>
-            <button id="resetBtn" class="secondary" onclick="resetChat()" disabled>Reset</button>
-            <button id="photoboothBtn" class="secondary" onclick="goToPhotobooth()" style="background: #7e5a3a;">Let's Change That</button>
+        <div class="controls" id="controls">
+            <button id="photoboothBtn" onclick="goToPhotobooth()">Let's Change That</button>
         </div>
     </div>
 
@@ -228,13 +223,11 @@
                 type: 'right',
                 text: 'I saw a dream',
                 time: '8:26 AM',
-                checkmarks: true
             },
             {
                 type: 'right',
                 text: 'Jisme we were trying the photo booth',
                 time: '8:26 AM',
-                checkmarks: true
             },
             {
                 type: 'left',
@@ -260,7 +253,6 @@
         let isSimulating = false;
 
         function createMessage(msg) {
-
             const checkmark = msg.checkmarks ? '<span class="checkmark">✓✓</span>' : '';
             const sender = msg.sender ? `<div class="sender-name">${msg.sender}</div>` : '';
             
@@ -290,8 +282,6 @@
             if (isSimulating) return;
             
             isSimulating = true;
-            document.getElementById('startBtn').disabled = true;
-            document.getElementById('resetBtn').disabled = true;
 
             while (currentIndex < messages.length) {
                 addMessage(currentIndex);
@@ -305,20 +295,24 @@
             }
 
             isSimulating = false;
-            document.getElementById('resetBtn').disabled = false;
-        }
-
-        function resetChat() {
-            const chatContainer = document.getElementById('chatContainer');
-            chatContainer.innerHTML = '';
-            currentIndex = 0;
-            document.getElementById('startBtn').disabled = false;
-            document.getElementById('resetBtn').disabled = true;
+            
+            // Show the "Let's Change That" button after all messages
+            setTimeout(() => {
+                document.getElementById('controls').classList.add('show');
+            }, 500);
         }
 
         function goToPhotobooth() {
             window.location.href = '/';
         }
+
+        // Auto-start simulation when page loads
+        window.addEventListener('DOMContentLoaded', () => {
+            // Small delay before starting to feel more natural
+            setTimeout(() => {
+                startSimulation();
+            }, 500);
+        });
     </script>
 </body>
 </html>

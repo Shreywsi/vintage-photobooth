@@ -5,7 +5,7 @@ export default function App(){
   return (
     <div className="app-root">
       <header className="app-header">
-        <h1 className="title">Vintage Photobooth</h1>
+        <h1 className="title">Photobooth</h1>
         <button onClick={() => window.location.href = '/chat.html'} style={{
           position: 'absolute', top: '20px', right: '20px',
           background: 'transparent', border: '1px solid #7e5a3a', 
