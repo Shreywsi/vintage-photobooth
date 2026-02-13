@@ -151,6 +151,43 @@
             line-height: 1.2;
         }
 
+        .typing-indicator {
+            background-color: white;
+            border-radius: 14px;
+            border-top-left-radius: 0;
+            padding: 16px 20px;
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .typing-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #90949c;
+            animation: typingAnimation 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typingAnimation {
+            0%, 60%, 100% {
+                transform: translateY(0);
+                opacity: 0.7;
+            }
+            30% {
+                transform: translateY(-10px);
+                opacity: 1;
+            }
+        }
+
         .controls {
             padding: 20px;
             background: white;
@@ -233,19 +270,22 @@
                 type: 'left',
                 sender: 'Parth from Mumbai',
                 text: 'You knoww',
-                time: '8:27 AM'
+                time: '8:27 AM',
+                showTyping: true
             },
             {
                 type: 'left',
                 sender: 'Parth from Mumbai',
                 text: 'I\'ve never',
-                time: '8:27 AM'
+                time: '8:27 AM',
+                showTyping: true
             },
             {
                 type: 'left',
                 sender: 'Parth from Mumbai',
                 text: 'Been in a photobooth',
-                time: '8:27 AM'
+                time: '8:27 AM',
+                showTyping: true
             }
         ];
 
@@ -270,6 +310,27 @@
             `;
         }
 
+        function showTypingIndicator() {
+            const chatContainer = document.getElementById('chatContainer');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message left';
+            typingDiv.id = 'typing-indicator';
+            typingDiv.innerHTML = `
+                <div class="typing-indicator">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            `;
+            chatContainer.appendChild(typingDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function removeTypingIndicator() {
+            const typing = document.getElementById('typing-indicator');
+            if (typing) typing.remove();
+        }
+
         function addMessage(index) {
             const chatContainer = document.getElementById('chatContainer');
             const messageElement = document.createElement('div');
@@ -284,12 +345,27 @@
             isSimulating = true;
 
             while (currentIndex < messages.length) {
+                const msg = messages[currentIndex];
+                
+                // Show typing indicator for left messages
+                if (msg.type === 'left' && msg.showTyping) {
+                    showTypingIndicator();
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+                    removeTypingIndicator();
+                }
+
                 addMessage(currentIndex);
                 currentIndex++;
                 
-                // Wait between messages (varying delays for realism)
-                const delay = currentIndex === 1 ? 1500 : // Longer after first message
-                             Math.random() * 1000 + 800; // Random 800-1800ms
+                // Wait between messages
+                let delay;
+                if (currentIndex === 1) {
+                    delay = 1200;
+                } else if (currentIndex === 2) {
+                    delay = 1800;
+                } else {
+                    delay = Math.random() * 800 + 600;
+                }
                 
                 await new Promise(resolve => setTimeout(resolve, delay));
             }
