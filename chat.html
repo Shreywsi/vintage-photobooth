@@ -17,56 +17,62 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            padding: 20px;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
         }
 
         .phone-container {
             width: 100%;
-            max-width: 500px;
+            height: 100%;
             background: white;
-            border-radius: 20px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            border-radius: 0;
+            box-shadow: none;
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
 
         .header {
-            background: #075e54;
+            background: #f4f4f4;
             color: white;
-            padding: 15px 20px;
+            padding: 20px 25px;
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 20px;
         }
 
         .header-avatar {
-            width: 40px;
-            height: 40px;
-            background: #25d366;
+            width: 56px;
+            height: 56px;
+            background-size: cover;
+            background-position: center;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            font-size: 18px;
+            font-size: 24px;
+            overflow: hidden;
+            flex-shrink: 0;
         }
 
         .header-info h3 {
-            font-size: 16px;
+            font-size: 18px;
             font-weight: 500;
         }
 
         .chat-background {
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><circle cx="20" cy="20" r="15" fill="%23e8dcd1" opacity="0.1"/><path d="M30,30 Q40,20 50,30 T70,30" stroke="%23d4c5b0" fill="none" opacity="0.1"/></svg>');
+            background-image: url('/chat-bg.png');
             background-color: #e5ddd5;
+            background-repeat: repeat;
             padding: 20px;
-            min-height: 500px;
-            max-height: 600px;
+            flex: 1;
             overflow-y: auto;
         }
 
         .message {
-            margin-bottom: 8px;
+            margin-bottom: 12px;
             display: flex;
             opacity: 0;
             transform: scale(0.8);
@@ -89,11 +95,12 @@
         }
 
         .message-content {
-            max-width: 75%;
-            padding: 8px 12px;
-            border-radius: 8px;
+            max-width: 85%;
+            padding: 14px 20px;
+            border-radius: 14px;
             position: relative;
             word-wrap: break-word;
+            font-size: 18px;
         }
 
         .message.right .message-content {
@@ -107,10 +114,10 @@
         }
 
         .message-text {
-            font-size: 14px;
-            line-height: 1.4;
-            color: #303030;
-            margin-bottom: 3px;
+            font-size: 22px;
+            line-height: 1.7;
+            color: #0f1720;
+            margin-bottom: 8px;
         }
 
         .message-text .highlight {
@@ -119,7 +126,7 @@
         }
 
         .message-time {
-            font-size: 11px;
+            font-size: 15px;
             color: #667781;
             text-align: right;
             display: flex;
@@ -128,16 +135,23 @@
             gap: 3px;
         }
 
+        /* slightly larger checkmark and tighter metadata spacing */
+        .checkmark {
+            color: #53bdeb;
+            font-size: 18px;
+        }
+
         .checkmark {
             color: #53bdeb;
             font-size: 16px;
         }
 
         .sender-name {
-            font-size: 13px;
+            font-size: 20px;
             color: #075e54;
-            font-weight: 600;
-            margin-bottom: 3px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            line-height: 1.2;
         }
 
         .controls {
@@ -182,9 +196,18 @@
 <body>
     <div class="phone-container">
         <div class="header">
-            <div class="header-avatar">S</div>
+            <div class="header-avatar" style="background-image: url('/whatsapp-dp.jpg')"></div>
             <div class="header-info">
-                <h3>Parth from Mumbai</h3>
+                <h3 style="
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 29px;      /* typical WhatsApp message size */
+    font-weight: 400;     /* normal weight */
+    color: #242323;       /* WhatsApp dark green for sender bubble text */
+    margin: 0;
+">
+    Parth from Mumbai
+</h3>
+
             </div>
         </div>
         
