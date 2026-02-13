@@ -9,14 +9,14 @@ export default function App(){
         <button onClick={() => window.location.href = '/chat.html'} style={{
           position: 'absolute', top: '20px', right: '20px',
           background: 'transparent', border: '1px solid #7e5a3a', 
-          color: '#7e5a3a', padding: '6px 12px', borderRadius: '6px',
-          cursor: 'pointer', fontFamily: 'inherit', fontSize: '12px'
+          color: '#7e5a3a', padding: '8px 16px', borderRadius: '6px',
+          cursor: 'pointer', fontFamily: 'inherit', fontSize: '13px',
+          transition: 'all 0.2s ease'
         }}>← Back to Chat</button>
       </header>
       <main className="main">
         <PhotoBooth />
       </main>
-      <footer className="app-footer">Enjoy your retro photos ✨</footer>
     </div>
   )
 }

@@ -76,8 +76,6 @@ export default function PhotoBooth(){
     return ()=>{ if(streamRef.current) streamRef.current.getTracks().forEach(t=>t.stop()) }
   },[])
 
-  // countdown handled per-capture inside startCapture to avoid race conditions
-
   const doFlash = ()=>{
     if(!flashRef.current) return
     flashRef.current.classList.add('flash-on')
@@ -93,7 +91,6 @@ export default function PhotoBooth(){
     canvas.width = w
     canvas.height = h
     const ctx = canvas.getContext('2d')
-    // mirror the capture so it matches the mirrored preview
     ctx.save()
     if(filter === 'sepia') ctx.filter = 'sepia(0.9) contrast(1.05)'
     else if(filter === 'bw') ctx.filter = 'grayscale(1) contrast(1.05)'
@@ -106,7 +103,6 @@ export default function PhotoBooth(){
     ctx.drawImage(video, 0, 0, w, h)
     ctx.restore()
     if(filter === 'grain' || filter === 'classic'){
-      // simple grain: overlay noise
       const img = ctx.getImageData(0,0,w,h)
       for(let i=0;i<img.data.length;i+=4){
         const v = (Math.random()-0.5)*30
@@ -117,13 +113,11 @@ export default function PhotoBooth(){
       ctx.putImageData(img,0,0)
     }
     if(filter === 'classic'){
-      // vignette
       const vg = ctx.createRadialGradient(w/2, h/2, Math.min(w,h)*0.2, w/2, h/2, Math.max(w,h)*0.8)
       vg.addColorStop(0, 'rgba(0,0,0,0)')
       vg.addColorStop(1, 'rgba(0,0,0,0.45)')
       ctx.fillStyle = vg
       ctx.fillRect(0,0,w,h)
-      // light scratches
       ctx.globalAlpha = 0.08
       ctx.strokeStyle = '#fff'
       for(let s=0;s<15;s++){
@@ -148,7 +142,6 @@ export default function PhotoBooth(){
       setCountdown(seconds)
       await new Promise(res=>{
         const t = setInterval(()=>{
-          // play beep each tick
           if(seconds > 0) playBeep(900 - seconds*80, 0.12)
           seconds -= 1
           setCountdown(seconds)
@@ -160,7 +153,6 @@ export default function PhotoBooth(){
       playShutter()
       const data = captureSingle()
       setPhotos(prev => [...prev, data])
-      // small pause between shots
       await new Promise(r => setTimeout(r, 600))
     }
     capturingRef.current = false
@@ -175,7 +167,6 @@ export default function PhotoBooth(){
         <div className="frame-decor"> 
           <div className="camera-top">
             <div className="led" />
-            <div className="viewfinder">PHOTOMAT</div>
             <div className="speaker" />
           </div>
           <div className="camera-area">

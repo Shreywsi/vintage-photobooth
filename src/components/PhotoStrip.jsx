@@ -3,6 +3,7 @@ import React, { useRef, useEffect, useState } from 'react'
 export default function PhotoStrip({ images = [], filter = 'none' }){
   const canvasRef = useRef(null)
   const [dataUrl, setDataUrl] = useState(null)
+  const [showModal, setShowModal] = useState(false)
 
   useEffect(()=>{
     if(images.length === 0) { setDataUrl(null); return }
@@ -27,19 +28,15 @@ export default function PhotoStrip({ images = [], filter = 'none' }){
       canvas.width = w
       canvas.height = totalH
       const ctx = canvas.getContext('2d')
-      // background
       ctx.fillStyle = '#f7efe2'
       ctx.fillRect(0,0,canvas.width,canvas.height)
-      // decorative top
       ctx.fillStyle = '#efe1d0'
       ctx.fillRect(10,10,canvas.width-20,top-10)
 
       for(let i=0;i<imgs.length;i++){
         const y = top + i*(h+spacing)
-        // film border
         ctx.fillStyle = '#222'
         ctx.fillRect(30,y-6,w-60,h+12)
-        // image
         ctx.save()
         if(filter === 'sepia') ctx.filter = 'sepia(0.9) contrast(1.05)'
         else if(filter === 'bw') ctx.filter = 'grayscale(1) contrast(1.05)'
@@ -48,9 +45,7 @@ export default function PhotoStrip({ images = [], filter = 'none' }){
         else if(filter === 'classic') ctx.filter = 'sepia(0.95) contrast(1.2) saturate(0.9)'
         else ctx.filter = 'none'
         ctx.drawImage(imgs[i], 40, y, w-80, h)
-        // classic overlay per photo
         if(filter === 'classic'){
-          // vignette for each cell
           ctx.globalCompositeOperation = 'multiply'
           const vg = ctx.createRadialGradient(w/2, y + h/2, Math.min(w,h)*0.15, w/2, y + h/2, Math.max(w,h)*0.6)
           vg.addColorStop(0, 'rgba(0,0,0,0)')
@@ -58,7 +53,6 @@ export default function PhotoStrip({ images = [], filter = 'none' }){
           ctx.fillStyle = vg
           ctx.fillRect(40, y, w-80, h)
           ctx.globalCompositeOperation = 'source-over'
-          // light scratches
           ctx.globalAlpha = 0.08
           ctx.strokeStyle = '#fff'
           for(let s=0;s<10;s++){
@@ -72,19 +66,15 @@ export default function PhotoStrip({ images = [], filter = 'none' }){
         }
         ctx.restore()
       }
-      // add perforations on left and right edges
       const holeW = 8
       const holeH = 14
       const holeGap = 18
       ctx.fillStyle = '#efe6da'
       for(let i=0;i<Math.floor((totalH - top)/holeGap); i++){
         const yy = top + 10 + i*holeGap
-        // left
         ctx.fillRect(12, yy, holeW, holeH)
-        // right
         ctx.fillRect(w - 12 - holeW, yy, holeW, holeH)
       }
-      // footer text
       ctx.fillStyle = '#6b4a3d'
       ctx.font = '18px "Playfair Display", serif'
       ctx.fillText('vintage-photobooth', 40, canvas.height - 10)
@@ -101,14 +91,41 @@ export default function PhotoStrip({ images = [], filter = 'none' }){
     a.click()
   }
 
+  const openModal = () => {
+    if(dataUrl) setShowModal(true)
+  }
+
+  const closeModal = () => {
+    setShowModal(false)
+  }
+
   return (
-    <div className="photostrip">
-      <div className="strip-preview">
-        {images.length === 0 ? <div className="placeholder">No strip yet — take photos!</div> : <canvas ref={canvasRef} className="strip-canvas" />}
+    <>
+      <div className="photostrip">
+        <div className="strip-preview" onClick={openModal} style={{cursor: dataUrl ? 'pointer' : 'default'}}>
+          {images.length === 0 ? (
+            <div className="placeholder">No strip yet — take photos!</div>
+          ) : (
+            <canvas ref={canvasRef} className="strip-canvas" />
+          )}
+        </div>
+        <div className="strip-actions">
+          <button onClick={download} disabled={!dataUrl}>Download Strip</button>
+        </div>
       </div>
-      <div className="strip-actions">
-        <button onClick={download} disabled={!dataUrl}>Download Strip</button>
-      </div>
-    </div>
+
+      {showModal && (
+        <div className="modal-overlay" onClick={closeModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close" onClick={closeModal}>×</button>
+            <img src={dataUrl} alt="Photo strip" className="modal-image" />
+            <div className="modal-actions">
+              <button onClick={download}>Download</button>
+              <button onClick={closeModal}>Close</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   )
 }
