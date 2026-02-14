@@ -3,13 +3,13 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  base: '/', // Change this to root
+  base: '/',
   server: {
     port: 5175,
     strictPort: true
   },
   build: {
-    outDir: 'docs',
+    outDir: 'docs',  // Change from 'dist' to 'docs'
     rollupOptions: {
       input: {
         main: new URL('./index.html', import.meta.url).pathname,
